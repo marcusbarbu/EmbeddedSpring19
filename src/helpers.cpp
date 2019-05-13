@@ -10,7 +10,7 @@ float lx_f, ly_f, lz_f;
 float ax_f, ay_f, az_f;
 
 void prettyPrint(){
-  ppLIS3DH();
+  //ppLIS3DH();
   ppADXL343();
   Serial.println("------------------------------------");
 }

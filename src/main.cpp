@@ -6,8 +6,11 @@
 /*
 Using two different types of accelerometers was a mistake.
 */
-
-typedef volatile float * accel; 
+struct accel {
+  float x;
+  float y;
+  float z;
+};
 
 volatile float aReadings[3];
 volatile float bReadings[3];
@@ -15,37 +18,55 @@ volatile float bReadings[3];
 accel aHistory[HISTSIZE];
 accel bHistory[HISTSIZE];
 
-volatile float jerkHolder[3];
-
 volatile int loop_iter = 0;
 
+void printAccel(accel a){
+  Serial.print("x: ");
+  Serial.print(a.x);
+  Serial.print(" y: ");
+  Serial.print(a.y);
+  Serial.print(" z: ");
+  Serial.println(a.z);
+}
+void printCSV(accel a){
+  Serial.print(a.x);
+  Serial.print(",");
+  Serial.print(a.y);
+  Serial.print(",");
+  Serial.print(a.z);
+  Serial.println(",");
+}
 
-accel computeJerkRel(accel a, accel b){
-  for (int i=0; i<3; i++){ 
-    jerkHolder[i] = ((float)b[i] - (float)a[i])/((float)TDELTA);
-    Serial.print((float)b[i]);
-    Serial.print(" - ");
-    Serial.print((float)a[i]); 
-    Serial.print("    ");
-    Serial.print(jerkHolder[i]);
-    Serial.print("    ");
-  }
+accel computeJerkRel(accel a,  accel b){
+  accel jerkHolder = {0.0, 0.0, 0.0};
+  jerkHolder.x = (a.x - b.x) / ((float)TDELTA * 0.001);
+  jerkHolder.y = (a.y - b.y) / ((float)TDELTA * 0.001);
+  jerkHolder.z = (a.z - b.z) / ((float)TDELTA * 0.001);
+
   return jerkHolder;
 }
 
 float computeJerkAbs(accel a, accel b){
-  //Serial.println("computing rel abs");
   accel c = computeJerkRel(a, b);
-  float res = sqrt((c[0]*c[0]) + (c[1]*c[1]) + (c[2]*c[2]));
+  //printAccel(c);
+  float res = sqrt((c.x*c.x) + (c.y*c.y) + (c.z*c.z)) / ((float) TDELTA);
   return res;
 }
 
 void testHistory(accel* hist){
-  //Serial.println("testing");
-  float j = computeJerkAbs(hist[HISTSIZE], hist[HISTSIZE-1]);
-  Serial.println(j); 
-  if (j > FALL_JERK){
+  //float j = computeJerkAbs(hist[iteration % HISTSIZE], hist[iteration-1 % HISTSIZE]);
+  float jerk_cumulative = 0.0;
+  float j; 
+  for (int i=1; i < HISTSIZE; i++){
+    j = computeJerkAbs(hist[i], hist[i-1]);
+    jerk_cumulative += j;
+  } 
+  jerk_cumulative /= (HISTSIZE-1);
+  //Serial.println(jerk_cumulative);
+  digitalWrite(LED_BUILTIN, LOW);
+  if (jerk_cumulative > FALL_JERK){
     Serial.println("Falling?");
+    digitalWrite(LED_BUILTIN, HIGH);
   }
 }
 
@@ -56,30 +77,35 @@ void setup()
   setupLIS3DH();
   setupADXL343();
   delay(200);
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop()
 {
+  /*if (loop_iter % HISTSIZE == 0){
+    Serial.println("HISTORY INBOUND ======================");
+    for (int i=0; i < HISTSIZE; i++){
+      printCSV(aHistory[i]);
+    }
+    Serial.println("THAT WAS HISTORY =====================");
+  } */
   readLIS3DH();
   readADXL343();
  
   convertLIS3DH();
   convertADXL343();
-  prettyPrint();
-  
-  aReadings[0] = ax_f;
-  aReadings[1] = ay_f;
-  aReadings[2] = az_f;
-  
-  bReadings[0] = lx_f;
-  bReadings[1] = ly_f;
-  bReadings[2] = lz_f;
 
-  testHistory[]
+  aHistory[loop_iter % HISTSIZE].x = ax_f;
+  aHistory[loop_iter % HISTSIZE].y = ay_f;
+  aHistory[loop_iter % HISTSIZE].z = az_f;
+  
+  bHistory[loop_iter % HISTSIZE].x = lx_f;
+  bHistory[loop_iter % HISTSIZE].y = ly_f;
+  bHistory[loop_iter % HISTSIZE].z = lz_f;
 
-  testHistory(aHistory);
+  if (loop_iter > 0 && loop_iter % HISTSIZE == 0) testHistory(aHistory);
   delay(TDELTA);
-  
   loop_iter++;
+  //Serial.println(loop_iter);
 }
 

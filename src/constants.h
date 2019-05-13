@@ -1,9 +1,9 @@
 #ifndef CONSTANTS
 #define CONSTANTS 1
 
-#define TDELTA 150
+#define TDELTA 20
 #define HISTSIZE 10
-#define FALL_JERK 0.2
+#define FALL_JERK 10
 
 #define LIS3DH_ADDR 0x18
 #define LIS3DH_DATA_REG_START 0x28

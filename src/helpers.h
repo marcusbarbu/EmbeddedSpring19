@@ -7,6 +7,12 @@ extern int16_t ax, ay, az;
 extern float lx_f, ly_f, lz_f;
 extern float ax_f, ay_f, az_f;
 
+struct accel {
+  float x;
+  float y;
+  float z;
+};
+
 //LIS3DH
 
 void readLIS3DH();

@@ -3,7 +3,9 @@
 
 #define TDELTA 20
 #define HISTSIZE 10
+#define CUM_SIZE 30
 #define FALL_JERK 10
+#define CUMULATIVE_JERK_THRESHOLD 1.5 
 
 #define LIS3DH_ADDR 0x18
 #define LIS3DH_DATA_REG_START 0x28

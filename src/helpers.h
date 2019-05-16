@@ -14,13 +14,13 @@ struct accel {
 };
 
 //LIS3DH
-
 void readLIS3DH();
 void setupLIS3DH();
 void testLIS3DH(); 
 void convertLIS3DH();
 void ppLIS3DH();
 
+//ADXL343
 void readADXL343();
 void setupADXL343();
 void convertADXL343();

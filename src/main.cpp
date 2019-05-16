@@ -66,9 +66,13 @@ void loop()
       Serial.print("  Jerk B: ");
       Serial.println(jerk_history_b);
       //if both sensors experience high jerk we're probably falling
-      if (jerk_history_a > CUMULATIVE_JERK_THRESHOLD && jerk_history_b > CUMULATIVE_JERK_THRESHOLD){
+      if (jerk_history_a > CUMULATIVE_JERK_THRESHOLD && jerk_history_b > CUMULATIVE_JERK_THRESHOLD)
+      {
         digitalWrite(LED_BUILTIN, HIGH);
       }
+
+      jerk_history_a = 0.0;
+      jerk_history_b = 0.0;
     }
   }
   delay(TDELTA);

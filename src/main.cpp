@@ -57,7 +57,7 @@ void loop()
     digitalWrite(LED_BUILTIN, LOW); //turn the LED off if we need to
     jerk_history_a += testHistory(aHistory);
     jerk_history_b += testHistory(bHistory);
-    if (loop_iter % CUM_SIZE == 0){ //do a test every CUMSIZE loops
+    if (loop_iter % CUM_SIZE == 0){ //do a test every CUM_SIZE loops
       //take the average jerk for each sensor
       jerk_history_a /= CUM_SIZE; 
       jerk_history_b /= CUM_SIZE; 
